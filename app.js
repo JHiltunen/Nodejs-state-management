@@ -3,8 +3,21 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+const username = 'foo';
+const password = 'bar';
+
 app.set('views', './views');
 app.set('view engine', 'pug');
+
+// don't do this in the project
+app.get('/form', ((req, res) => {
+  res.render('form');
+}))
+
+// don't do this in the project
+app.get('/secret', ((req, res) => {
+  res.render('secret');
+}))
 
 // don't do this in the project
 app.get('/setCookie/:clr', ((req, res) => {
