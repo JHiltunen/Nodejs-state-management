@@ -1,9 +1,19 @@
 'use strict';
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const passport = require('./utils/pass');
 const app = express();
 const session = require('express-session');
 const port = 3000;
+
+// don't do this in the project
+const loggedIn = (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    res.redirect('/form');
+  }
+};
 
 // don't do this in the project
 app.use(express.urlencoded({extended: false}));
@@ -20,20 +30,33 @@ app.use(session({
   cookie: {maxAge: 60*60*24},
 }));
 
+app.use(passport.initialize());
+app.use(passport.session()); // don't do this in the project
+
 app.set('views', './views');
 app.set('view engine', 'pug');
 
 // don't do this in the project
-app.post('/login', (req, res) => {
-  const uname = req.body.username;
-  const passwd = req.body.password;
- 
-  if (uname === username && passwd === password) {
-    req.session.kirjautunut = true;
-    res.redirect('/secret');
-  } else {
-    res.redirect('/form');
-  }
+app.post('/login',
+    passport.authenticate('local', {failureRedirect: '/form'}),
+    (req, res) => {
+      console.log('success');
+      res.redirect('/secret');
+});
+
+// don't do this in the project
+app.get('/secret', loggedIn, (req, res) => {
+  res.render('secret');
+});
+
+// don't do this in the project
+app.get('/', (req, res) => {
+  res.render('home');
+});
+
+// don't do this in the project
+app.get('/home', (req, res) => {
+  res.render('home');
 });
 
 // don't do this in the project
@@ -41,13 +64,9 @@ app.get('/form', (req, res) => {
   res.render('form');
 });
 
-// don't do this in the project
-app.get('/secret', (req, res) => {
-  if (req.session.kirjautunut) {
-    res.render('secret');
-  } else {
-    res.redirect('/form')
-  }
+app.get('/logout', (req, res) => {
+  req.logOut();
+  res.redirect('/');
 });
 
 // don't do this in the project
